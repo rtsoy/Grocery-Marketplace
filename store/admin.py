@@ -1,10 +1,10 @@
 from django.contrib import admin
 
-from store.models import Country, Type, Product
+from store.models import Brand, Type, Product
 
 
-@admin.register(Country)
-class CountryAdmin(admin.ModelAdmin):
+@admin.register(Brand)
+class BrandAdmin(admin.ModelAdmin):
     pass
 
 

@@ -18,11 +18,15 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
-from store.views import MainPage
+from store.views import MainPage, DetailsPage, FizzyDrinksPage, DairyPage, ChocolatePage
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', MainPage.as_view())
+    path('', MainPage.as_view()),
+    path('<int:id>', DetailsPage.as_view()),
+    path('dairy', DairyPage.as_view()),
+    path('fizzy-drinks', FizzyDrinksPage.as_view()),
+    path('chocolate', ChocolatePage.as_view()),
 ]
 
 if settings.DEBUG:

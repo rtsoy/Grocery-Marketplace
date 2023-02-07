@@ -1,15 +1,16 @@
 from django.db import models
 
 
-class Country(models.Model):
+class Brand(models.Model):
     name = models.CharField(max_length=64, null=False)
+    country = models.CharField(max_length=64, null=False)
 
     class Meta:
-        verbose_name = 'Country'
-        verbose_name_plural = 'Countries'
+        verbose_name = 'Brand'
+        verbose_name_plural = 'Brands'
 
     def __str__(self) -> str:
-        return f'{self.name}'
+        return f'{self.name} : {self.country}'
 
 
 class Type(models.Model):
@@ -24,10 +25,9 @@ class Type(models.Model):
 
 
 class Product(models.Model):
-    brand = models.CharField(max_length=64, null=False)
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, null=False)
     name = models.CharField(max_length=64, null=False)
     description = models.TextField(max_length=1024, null=False)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE, null=False)
     protein = models.DecimalField(max_digits=4, decimal_places=1 ,null=False)
     fat = models.DecimalField(max_digits=4, decimal_places=1 ,null=False)
     carbohydrates = models.DecimalField(max_digits=4, decimal_places=1 ,null=False)
@@ -40,7 +40,7 @@ class Product(models.Model):
         verbose_name_plural = 'Products'
 
     def __str__(self) -> str:
-        return f'{self.name} : {self.country} : {self.price} KZT'
+        return f'{self.brand.name} : {self.name} : {self.price} KZT'
     
     
     

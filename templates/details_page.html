@@ -1,0 +1,42 @@
+{% extends 'index.html' %}
+
+{% block title %}
+Grocery Marketplace
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h2>{{ product.name }} by {{ product.brand.name }}</h2>
+                <p>Made in {{ product.brand.country }}</p>
+                <br>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                          <th scope="col">Protein</th>
+                          <th scope="col">Carbohydrate</th>
+                          <th scope="col">Fat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                          <td>{{ product.protein }}g</td>
+                          <td>{{ product.carbohydrates }}g</td>
+                          <td>{{ product.fat }}g</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br>
+                <h4>Decription</h4>
+                <br>
+                <p>{{ product.description }}</p>
+                <br>
+                <h4>{{ product.price }} KZT</h4>
+            </div>
+            <div class="col">
+                <img src="{{ product.img.url }}" class="border border-primary" width="600"/>
+            </div>
+        </div>
+    </div>
+{% endblock %}

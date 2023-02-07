@@ -6,16 +6,29 @@ Grocery Marketplace
 
 {% block body %}
     <div class="container">
-        {% for product in products %}
+        <div class="text-end">
+            <p>{{products|length}} products</p>
+        </div>
         <div class="row">
-            <div class="col">
-                <div class="alert alert-light">
-                    <h3>{{ product.name }} by {{ product.brand }}</h3>
-                    <p>{{ product.price }} KZT</p>
-                    <img src="{{ product.img.url }}" width="180"/>
-                </div>
+        {% for product in products %}
+        <div class="col">
+        <div class="alert alert-light">
+            <div class="row">
+                <div class="col">
+                    <a href="{{ product.id }}"><img src="{{ product.img.url }}" class="" width="180"/></a>
+                </div>  
+                <div class="col">
+                    {{forloop_count}}
+                    <h3>{{ product.name }} by {{ product.brand.name }}</h3>
+                    <p><strong>{{ product.price }} KZT</strong></p>
+                </div>   
             </div>
         </div>
+        </div>
+        {% if forloop.counter|divisibleby:"3" %}
+            <div class="w-100"></div>
+        {% endif %}
         {% endfor %}
+        </div>
     </div>
 {% endblock %}
