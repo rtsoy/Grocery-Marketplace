@@ -18,11 +18,14 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
-from store.views import MainPage, DetailsPage, TypePage, BrandPage
+from store.views import MainPage, DetailsPage, TypePage, BrandPage, RegisterUser, LoginUser, logout_user
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', MainPage.as_view(), name='mainpage'),
+    path('login/', LoginUser.as_view(), name='login'),
+    path('logout', logout_user, name='logout'),
+    path('register/', RegisterUser.as_view(), name='register'),
     path('product/<slug:brand_slug>/<slug:product_slug>', DetailsPage.as_view(), name='detailspage'),
     path('type/<slug:type_slug>', TypePage.as_view(), name='typepage'),
     path('brand/<slug:brand_slug>', BrandPage.as_view(), name='brandpage'),
