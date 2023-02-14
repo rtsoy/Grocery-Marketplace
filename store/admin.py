@@ -5,15 +5,14 @@ from store.models import Brand, Type, Product
 
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
-    pass
+    prepopulated_fields = {'slug': ("name",)}
 
 
 @admin.register(Type)
 class TypeAdmin(admin.ModelAdmin):
-    pass
+    prepopulated_fields = {'slug': ("name",)}
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    pass
-
+    prepopulated_fields = {'slug': ("name",)}

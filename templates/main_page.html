@@ -1,21 +1,17 @@
 {% extends 'index.html' %}
 
-{% block title %}
-Grocery Marketplace
-{% endblock %}
-
 {% block body %}
     <div class="container">
-        <div class="text-end">
+        <!-- <div class="text-end">
             <p>{{products|length}} products</p>
-        </div>
+        </div> -->
         <div class="row">
         {% for product in products %}
         <div class="col">
         <div class="alert alert-light">
             <div class="row">
                 <div class="col">
-                    <a href="{{ product.id }}"><img src="{{ product.img.url }}" class="" width="180"/></a>
+                    <a href="{% url 'detailspage' product.brand.slug product.slug %}"><img src="{{ product.img.url }}" class="" width="180"/></a>
                 </div>  
                 <div class="col">
                     {{forloop_count}}
@@ -25,10 +21,37 @@ Grocery Marketplace
             </div>
         </div>
         </div>
-        {% if forloop.counter|divisibleby:"3" %}
+        {% if forloop.counter|divisibleby:"2" %}
             <div class="w-100"></div>
         {% endif %}
         {% endfor %}
         </div>
     </div>
+    {% if page_obj.has_other_pages %}
+    <div class="container d-flex justify-content-center">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+          <li class="page-item">
+            {% if page_obj.has_previous %}
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+              <span class="sr-only"></span>
+            </a>
+            {% endif %}
+          </li>
+          {% for p in paginator.page_range %}
+            <li class="page-item"><a class="page-link" href="?page={{ p }}">{{ p }}</a></li>
+          {% endfor %}
+          <li class="page-item">
+            {% if page_obj.has_next %}
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+              <span class="sr-only"></span>
+            {% endif %}
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    {% endif %}
 {% endblock %}
