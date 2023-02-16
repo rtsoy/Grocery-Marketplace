@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
-from .models import Cart
+from .models import Cart, Product
 
 
 class RegisterUserForm(UserCreationForm):
@@ -27,3 +27,11 @@ class CartAddProductForm(forms.ModelForm):
     class Meta:
         model = Cart
         fields = ['quantity']
+
+
+class SearchBarForm(forms.ModelForm):
+    search_query = forms.CharField(label="", widget=forms.TextInput())
+
+    class Meta:
+        model = Product
+        fields = ['search_query']

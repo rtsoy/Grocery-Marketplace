@@ -1,17 +1,17 @@
 from django.views.generic import ListView, DetailView, CreateView
 from django.views.generic.edit import FormMixin
 from django.contrib.auth.views import LoginView
-from django.db.models import Sum, F
+from django.db.models import Q, F, Sum
 from django.urls import reverse_lazy
 from django.contrib.auth import logout, login
 from django.shortcuts import redirect, render, get_object_or_404
 
 from .models import Product, Cart
-from .utils import DataMixin
-from .forms import RegisterUserForm, LoginUserForm, CartAddProductForm
+from .utils import DataMixin, SearchMixin
+from .forms import RegisterUserForm, LoginUserForm, CartAddProductForm, SearchBarForm
 
 
-class MainPage(DataMixin, ListView):
+class MainPage(DataMixin, SearchMixin, ListView):
     model = Product
     template_name = 'main_page.html'
     context_object_name = 'products'
@@ -22,7 +22,7 @@ class MainPage(DataMixin, ListView):
         return dict(list(context.items()) + list(c_def.items()))
 
 
-class DetailsPage(DataMixin, FormMixin, DetailView):
+class DetailsPage(DataMixin, DetailView):
     model = Product
     template_name = 'details_page.html'
     form_class = CartAddProductForm
@@ -48,7 +48,7 @@ class DetailsPage(DataMixin, FormMixin, DetailView):
         return dict(list(context.items()) + list(c_def.items()))
 
 
-class TypePage(DataMixin, ListView):
+class TypePage(DataMixin, SearchMixin, ListView):
     model = Product
     template_name = 'main_page.html'
     context_object_name = 'products'
@@ -64,7 +64,7 @@ class TypePage(DataMixin, ListView):
         return Product.objects.filter(type__slug=self.kwargs['type_slug'])
 
 
-class BrandPage(DataMixin, ListView):
+class BrandPage(DataMixin, SearchMixin, ListView):
     model = Product
     template_name = 'main_page.html'
     context_object_name = 'products'
@@ -96,6 +96,25 @@ class RegisterUser(DataMixin, CreateView):
         return redirect('mainpage')
 
 
+class Search(DataMixin, SearchMixin, ListView):
+    model = Product
+    template_name = 'main_page.html'
+    context_object_name = 'products'
+    
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title='Search:' + ' ' + str(self.kwargs['search_query']))
+        return dict(list(context.items()) + list(c_def.items()))
+
+    def get_queryset(self):
+        return Product.objects.filter(
+               Q(name__icontains=self.kwargs['search_query'])
+            or Q(brand__name__icontains=self.kwargs['search_query'])
+            or Q(type__name__icontains=self.kwargs['search_query']) 
+        )
+
+
 class LoginUser(DataMixin, LoginView):
     form_class = LoginUserForm
     template_name = 'login.html'
@@ -123,7 +142,7 @@ def cart_detail(request):
             total=F('item__price')*F('quantity')
         ).aggregate(total_price = Sum('total'))['total_price']
 
-        return render(request, 'cart.html', {'cart': cart, 'total_price':total_price})
+        return render(request, 'cart.html', {'cart': cart, 'total_price':total_price, 'title':f"{request.user}'s shopping cart"})
     if request.method == 'POST':
         user = request.user
         item = Product.objects.get(pk=request.POST['item_id'])
