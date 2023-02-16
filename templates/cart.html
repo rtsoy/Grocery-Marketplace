@@ -1,0 +1,45 @@
+{% extends 'index.html' %}
+
+{% block body %}
+
+{% if cart|length != 0 %}
+
+<h1>{{ title }}</h1>
+
+{% for c in cart %}
+
+<div class="alert alert-light">
+    <div class="row">
+        <div class="col">
+            <a href="{% url 'detailspage' c.item.brand.slug c.item.slug %}"><img src="{{ c.item.img.url }}" class="" width="180"/></a>
+        </div>
+        <div class="col">
+            <h3>{{ c.item.name }} by {{ c.item.brand.name }}</h3>
+            <p><strong>{{ c.item.price }} x {{ c.quantity }} = {{ c.total }}.00 KZT</strong></p>
+
+            <br>
+            <br>
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="number" name="quantity" value="{{ c.quantity }}" min="0" max="100">
+                <input type="hidden" name="item_id" value="{{ c.item.id }}">
+                <button type="submit">Update</button>
+            </form>
+        </div>
+        <a class="btn btn-danger" href="{% url 'cart_remove' c.pk %}"> Remove from cart </a>
+    </div>
+</div>
+{% endfor %}
+
+<div class="alert alert-primary">
+    <p class="fw-bold">Total price: {{ total_price }}.00 KZT</p>
+</div>
+
+{% else %}
+<div class="d-flex justify-content-center">
+    <h2>Your cart is empty :(</h2>
+</div>
+{% endif %}
+
+{% endblock %}

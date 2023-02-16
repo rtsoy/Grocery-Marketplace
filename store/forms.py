@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
+from .models import Cart
+
 
 class RegisterUserForm(UserCreationForm):
     username = forms.CharField(label='Username', widget=forms.TextInput(attrs={'class': 'form-input'}))
@@ -17,3 +19,11 @@ class RegisterUserForm(UserCreationForm):
 class LoginUserForm(AuthenticationForm):
     username = forms.CharField(label='Username', widget=forms.TextInput(attrs={'class': 'form-input'}))
     password = forms.CharField(label='Password', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
+
+
+class CartAddProductForm(forms.ModelForm):
+    quantity = forms.IntegerField(widget=forms.NumberInput(attrs={'size': '2', 'value': '1', 'min':1, 'max':100}))
+
+    class Meta:
+        model = Cart
+        fields = ['quantity']

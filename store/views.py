@@ -1,12 +1,14 @@
 from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic.edit import FormMixin
 from django.contrib.auth.views import LoginView
+from django.db.models import Sum, F
 from django.urls import reverse_lazy
 from django.contrib.auth import logout, login
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render, get_object_or_404
 
-from .models import Product, Type
+from .models import Product, Cart
 from .utils import DataMixin
-from .forms import RegisterUserForm, LoginUserForm
+from .forms import RegisterUserForm, LoginUserForm, CartAddProductForm
 
 
 class MainPage(DataMixin, ListView):
@@ -20,11 +22,25 @@ class MainPage(DataMixin, ListView):
         return dict(list(context.items()) + list(c_def.items()))
 
 
-class DetailsPage(DataMixin, DetailView):
+class DetailsPage(DataMixin, FormMixin, DetailView):
     model = Product
     template_name = 'details_page.html'
+    form_class = CartAddProductForm
     slug_url_kwarg = 'product_slug'
     context_object_name = 'product'
+
+    def post(self, request, *, object_list=None, **kwargs):
+        c = Cart.objects.filter(user=request.user, item=Product.objects.get(slug=kwargs['product_slug']))
+        if c:
+            c[0].quantity += int(request.POST['quantity'])
+            c[0].save()
+        else:   
+            Cart.objects.create(
+                user=request.user,
+                item=Product.objects.get(slug=kwargs['product_slug']),
+                quantity=request.POST['quantity']
+            )
+        return redirect('mainpage')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -92,6 +108,37 @@ class LoginUser(DataMixin, LoginView):
     def get_success_url(self):
         return reverse_lazy('mainpage')
 
+
+def cart_detail(request):
+    if request.method == 'GET':
+        cart = Cart.objects.filter(
+            user=request.user
+        ).annotate(
+            total=F('item__price')*F('quantity')
+        )
+
+        total_price = Cart.objects.filter(
+            user=request.user
+        ).annotate(
+            total=F('item__price')*F('quantity')
+        ).aggregate(total_price = Sum('total'))['total_price']
+
+        return render(request, 'cart.html', {'cart': cart, 'total_price':total_price})
+    if request.method == 'POST':
+        user = request.user
+        item = Product.objects.get(pk=request.POST['item_id'])
+        cart = get_object_or_404(Cart, user=user, item=item)
+        cart.quantity = request.POST['quantity']
+        if int(cart.quantity) > 0:
+            cart.save()
+        else:
+            cart.delete()
+        return redirect('cart')
+
+
+def cart_remove(request, id):
+    Cart.objects.get(pk=id).delete()
+    return redirect('cart')
 
 def logout_user(request):
     logout(request)

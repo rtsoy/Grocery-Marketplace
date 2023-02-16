@@ -48,6 +48,7 @@
           {% if request.user.is_authenticated %}
             <p class="btn">Welcome, {{ user.username }}!</p>
             <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+            <a href="{% url 'cart' %}" class="btn btn-success">Cart</a>
           {% else %}
             <a href="{% url 'register' %}" class="btn btn-success">Register</a>
             <a href="{% url 'login' %}" class="btn btn-success">Login</a>

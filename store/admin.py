@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from store.models import Brand, Type, Product
+from store.models import Brand, Type, Product, Cart
 
 
 @admin.register(Brand)
@@ -16,3 +16,7 @@ class TypeAdmin(admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ("name",)}
+
+@admin.register(Cart)
+class CardAdmin(admin.ModelAdmin):
+    pass

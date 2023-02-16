@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -49,4 +50,15 @@ class Product(models.Model):
         return f'{self.brand.name} : {self.name} : {self.price} KZT'
     
     
-    
+class Cart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    item = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+
+    class Meta:
+        verbose_name = 'Cart'
+        verbose_name_plural = 'Carts'
+        ordering = ['-id']
+
+    def __str__(self) -> str:
+        return f'{self.user} -> {self.item} [{self.quantity}]'
