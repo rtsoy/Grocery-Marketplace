@@ -1,6 +1,7 @@
 from django.views.generic import ListView, DetailView, CreateView
 from django.views.generic.edit import FormMixin
 from django.contrib.auth.views import LoginView
+from django.contrib.auth.models import User
 from django.db.models import Q, F, Sum
 from django.urls import reverse_lazy
 from django.contrib.auth import logout, login
@@ -9,6 +10,8 @@ from django.shortcuts import redirect, render, get_object_or_404
 from .models import Product, Cart
 from .utils import DataMixin, SearchMixin
 from .forms import RegisterUserForm, LoginUserForm, CartAddProductForm, SearchBarForm
+
+import json
 
 
 class MainPage(DataMixin, SearchMixin, ListView):
@@ -142,7 +145,13 @@ def cart_detail(request):
             total=F('item__price')*F('quantity')
         ).aggregate(total_price = Sum('total'))['total_price']
 
-        return render(request, 'cart.html', {'cart': cart, 'total_price':total_price, 'title':f"{request.user}'s shopping cart"})
+        context = {
+            'cart': cart,
+            'total_price':total_price,
+            'title':f"{request.user}'s shopping cart"
+        }
+
+        return render(request, 'cart.html', context)
     if request.method == 'POST':
         user = request.user
         item = Product.objects.get(pk=request.POST['item_id'])
@@ -152,7 +161,58 @@ def cart_detail(request):
             cart.save()
         else:
             cart.delete()
-        return redirect('cart')
+
+
+def order_delivery(request):
+    if request.method == 'GET':
+        user = User.objects.get(username=request.user)
+
+        cart = Cart.objects.filter(
+                user=request.user
+            ).annotate(
+                total=F('item__price')*F('quantity')
+            )
+
+        total_price = Cart.objects.filter(
+                user=request.user
+            ).annotate(
+                total=F('item__price')*F('quantity')
+            ).aggregate(total_price = Sum('total'))['total_price']
+
+        context = {
+            'cart': cart,
+            'total_price':total_price,
+            'title': f"{request.user}'s order",
+            'user': user,
+        }
+        return render(request, 'order.html', context)
+    
+    if request.method == 'POST':
+        user = User.objects.get(username=request.user)
+        cart = Cart.objects.filter(user=user)
+
+        total_price = Cart.objects.filter(
+                user=request.user
+            ).annotate(
+                total=F('item__price')*F('quantity')
+            ).aggregate(total_price = Sum('total'))['total_price']
+
+        order_data = {
+            'first_name': request.POST['first-name'],
+            'last_name': request.POST['last-name'],
+            'address': request.POST['address'],
+            'phone-number': request.POST['phone-number'],
+            'products': [f'{i.item.brand.name} {i.item.name} | {i.item.price} x {i.quantity} = {i.item.price * i.quantity} KZT' for i in cart],
+            'total_price': float(total_price),
+        }
+
+        with open('orders.json', 'a', encoding='utf-8') as json_file:
+            json.dump(order_data, json_file, indent=4, ensure_ascii=False)
+            json_file.write(',\n')
+
+        cart.delete()
+
+        return redirect('mainpage')
 
 
 def cart_remove(request, id):

@@ -18,7 +18,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
-from store.views import MainPage, DetailsPage, TypePage, BrandPage, RegisterUser, LoginUser, logout_user, cart_detail, cart_remove, Search
+from store.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,6 +32,7 @@ urlpatterns = [
     path('cart/', cart_detail, name='cart'),
     path('cart/remove/<int:id>', cart_remove, name='cart_remove'),
     path('?search=<str:search_query>', Search.as_view(), name='search'),
+    path('cart/order-delivery', order_delivery, name='order_delivery')
 ]
 
 if settings.DEBUG:

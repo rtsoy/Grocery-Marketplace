@@ -1,0 +1,61 @@
+{% extends 'index.html' %}
+
+{% block body %}
+
+<div class="alert alert-info" role="alert">
+    <h4>{{ title }}</h4>
+    {% for c in cart %}
+    <div class="row">
+        <div class="col">
+            <a href="{% url 'detailspage' c.item.brand.slug c.item.slug %}"><img src="{{ c.item.img.url }}" class="" width="180"/></a>
+    </div>
+    <div class="col">
+            <h3>{{ c.item.name }} by {{ c.item.brand.name }}</h3>
+            <p><strong>{{ c.item.price }} x {{ c.quantity }} = {{ c.total }}.00 KZT</strong></p>
+            <br>
+            <br>
+    </div>
+</div>
+{% endfor %}
+</div>
+
+<div class="d-flex flex-column">
+<a href="{% url 'cart' %}" class="btn btn-warning">Edit cart</a>
+</div>
+
+<br>
+
+<div class="container alert alert-info">
+    <form method="POST">
+        {% csrf_token %}
+        <div class="row">
+        
+        <div class="col">
+            <label for="first-name">First name: </label>
+            <input required type="text" name="first-name" id="first-name" value="{{ user.first_name }}">
+        <br>
+        <br>
+            <label for="last-name">Last name: </label>
+            <input required type="text" name="last-name" id="last-name" value="{{ user.last_name }}">
+        </div>
+
+        <div class="col">
+            <label for="address">Address: </label>
+            <input required type="text" name="address" id="address" value="{{ user.address }}">
+        <br>
+        <br>
+            <label for="phone-number">Phone number: </label>
+            <input required type="text" pattern="[+]{0,1}[7-9]{1}[0-9]{10}" name="phone-number" id="phone-number" value="{{ user.phone_number }}">
+        </div>
+
+    </div>
+    </div>
+
+    <div class="d-flex flex-column">
+    <button type="submit" class="btn btn-success">Order</button>
+    </div>
+
+    </form>
+
+
+{% endblock %}
